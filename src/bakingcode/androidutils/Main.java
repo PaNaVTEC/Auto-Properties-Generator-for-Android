@@ -44,8 +44,8 @@ public class Main {
 		if (clipboard == null || clipboard.trim() == "") {
 			return;
 		}
-		
-		Pattern p = Pattern.compile("<\\s*(\\w+)\\s*android:id=\\s*\"\\s*@\\+id/(\\w+)\"");
+
+		Pattern p = Pattern.compile("<\\s*(\\w+)\\s*(android:\\w+=\\\"[^\\\"]*\\\"\\s*)*android:id=\\s*\\\"\\s*@(\\+id|id)/(\\w+)\\\"");
 		Matcher matcher = p.matcher(clipboard);
 		
 		StringBuilder declaration = new StringBuilder();
@@ -56,10 +56,10 @@ public class Main {
 			
 			// Get type and name of var
 			String type = matcher.group(1);
-			String name = matcher.group(2);
+			String name = matcher.group(4);
 			
 			// Create variable with type and var name
-			declaration.append(String.format("/**\n *\n */\nprivate %s %s;\n", type, name));
+			declaration.append(String.format("/**\n *\n */\nprivate %s %s;\n\n", type, name));
 			getter.append(String.format("%s = (%s)findViewById(R.id.%s);\n", name, type, name));
 			
 		}
