@@ -19,8 +19,6 @@ import java.awt.Toolkit;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.StringSelection;
 import java.awt.datatransfer.Transferable;
-import java.awt.datatransfer.UnsupportedFlavorException;
-import java.io.IOException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -51,8 +49,11 @@ public class Main {
 		StringBuilder declaration = new StringBuilder();
 		StringBuilder getter = new StringBuilder();
 		getter.append("// Assign UI fields\n");
+		boolean anythingMatched = false;
 		
 		while (matcher.find()) {
+			
+			anythingMatched = true;
 			
 			// Get type and name of var
 			String type = matcher.group(1);
@@ -64,8 +65,11 @@ public class Main {
 			
 		}
 		
-		
-		setClipboard(declaration + "\n\n\n\n" + getter);
+		if (anythingMatched) {
+			setClipboard(declaration + "\n\n\n\n" + getter);
+		} else {
+			setClipboard("Can't match anything! =(");
+		}
 		
 	}
 
@@ -87,9 +91,7 @@ public class Main {
 	            
 	        }
 	        
-	    } catch (UnsupportedFlavorException e) {
-	    } catch (IOException e) {
-	    }
+	    } catch (Throwable e) { }
 	    return null;
 	    
 	}
