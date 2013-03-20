@@ -32,18 +32,18 @@ public class Main {
 
 	/**
 	 * Starts the app.
-	 * @param args
+	 * @param args no arguments need.
 	 */
 	public static void main(String[] args) {
 
 		// if no copied nothing from clipboard just exit the app.
 		// For this app work needs the xml layout of Android in clipboard
 		String clipboard = getClipboard();
-		if (clipboard == null || clipboard.trim() == "") {
+		if (clipboard == null || "".equals(clipboard.trim())) {
 			return;
 		}
 
-		Pattern p = Pattern.compile("<\\s*(\\w+)\\s*(android:\\w+=\\\"[^\\\"]*\\\"\\s*)*android:id=\\s*\\\"\\s*@(\\+id|id)/(\\w+)\\\"");
+		Pattern p = Pattern.compile("<\\s*(\\w+(\\.\\w+)*)\\s*(android:\\w+=\\\"[^\\\"]*\\\"\\s*)*android:id=\\s*\\\"\\s*@(\\+id|id)/(\\w+)\\\"");
 		Matcher matcher = p.matcher(clipboard);
 		
 		StringBuilder declaration = new StringBuilder();
@@ -57,11 +57,18 @@ public class Main {
 			
 			// Get type and name of var
 			String type = matcher.group(1);
-			String name = matcher.group(4);
+			String name = matcher.group(5);
 			
 			// Create variable with type and var name
 			declaration.append(String.format("/**\n *\n */\nprivate %s %s;\n\n", type, name));
-			getter.append(String.format("%s = (%s)findViewById(R.id.%s);\n", name, type, name));
+			
+			String formattedType;
+			if ("View".equals(type)) {
+				formattedType = String.format("%s = findViewById(R.id.%s);\n", name, name);
+			} else {
+				formattedType = String.format("%s = (%s)findViewById(R.id.%s);\n", name, type, name); 
+			}
+			getter.append(formattedType);
 			
 		}
 		
@@ -86,12 +93,12 @@ public class Main {
 	    	
 	        if (t != null && t.isDataFlavorSupported(DataFlavor.stringFlavor)) {
 	        	
-	            String text = (String)t.getTransferData(DataFlavor.stringFlavor);
-	            return text;
+	            return (String)t.getTransferData(DataFlavor.stringFlavor);
 	            
 	        }
 	        
 	    } catch (Throwable e) { }
+	    
 	    return null;
 	    
 	}
