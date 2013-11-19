@@ -22,7 +22,6 @@ import java.awt.datatransfer.Transferable;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-
 /**
  * Main class to generate code
  * 
@@ -43,7 +42,7 @@ public class Main {
 			return;
 		}
 
-		Pattern p = Pattern.compile("<\\s*(\\w+(\\.\\w+)*)\\s*((style|android:\\w+)=\\\"[^\\\"]*\\\"\\s*)*android:id=\\s*\\\"\\s*@(\\+id|id)/(\\w+)\\\"");
+		Pattern p = Pattern.compile("<\\s*(\\w+(\\.\\w+)*)\\s*((style|android:\\w+)=\"[^\"]*\"\\s*)*android:id=\\s*\"\\s*@(\\+id|id)/(\\w+)\"");
 		Matcher matcher = p.matcher(clipboard);
 		
 		StringBuilder declaration = new StringBuilder();
@@ -58,7 +57,13 @@ public class Main {
 			// Get type and name of var
 			String type = matcher.group(1);
 			String name = matcher.group(6);
-			
+
+			if (type.contains(".")) { // Is a custom component and have the type of package name + type
+				type = type.substring(type.lastIndexOf('.') + 1);
+			} else if ("include".equals(type)) { // An include, we can use "View" as a generic type
+				type = "View";
+			}
+
 			// Create variable with type and var name
 			declaration.append(String.format("/**\n *\n */\nprivate %s %s;\n\n", type, name));
 			
